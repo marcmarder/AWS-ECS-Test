@@ -6,13 +6,14 @@ export class CacheService {
   client;
 
   async connect() {
-    const client = await createClient({
-      url: 'tobi-mawi-test-0001-001.zhnxyp.0001.euc1.cache.amazonaws.com:6379',
+    const client = createClient({
+      url: 'redis://tobi-mawi-test-0001-001.zhnxyp.0001.euc1.cache.amazonaws.com:6379',
     });
+
     client.on('error', (err) => {
       throw new Error(err);
     });
-    client.connect();
+    await client.connect();
 
     this.client = client;
   }
