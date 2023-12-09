@@ -2,6 +2,8 @@ import { Controller, Get, Param, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CacheService } from './cache/cache.service';
 import { SQS } from 'aws-sdk';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Controller()
 export class AppController {
