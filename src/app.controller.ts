@@ -35,7 +35,9 @@ export class AppController {
 
   @Get('enqueue/:id')
   async enqueueMessage(@Param('id') id: string): Promise<string> {
-    const sqs = new SQS();
+    const sqs = new SQS({
+      region: 'eu-central-1',
+    });
     const queueUrl =
       'https://sqs.eu-central-1.amazonaws.com/571832093814/mawi-test';
     const params = {
@@ -49,7 +51,9 @@ export class AppController {
 
   @Get('dequeue')
   async dequeueMessage(): Promise<string> {
-    const sqs = new SQS();
+    const sqs = new SQS({
+      region: 'eu-central-1',
+    });
     const queueUrl =
       'https://sqs.eu-central-1.amazonaws.com/571832093814/mawi-test';
     const params = {
