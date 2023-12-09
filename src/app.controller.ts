@@ -10,6 +10,14 @@ export class AppController {
     private readonly cacheService: CacheService,
   ) {}
 
+  sqs = new SQS({
+    region: 'eu-central-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
+
+  queueUrl = 'https://sqs.eu-central-1.amazonaws.com/571832093814/mawi-test';
+
   @Get('beer')
   getBier(@Req() request: Request): string {
     return JSON.stringify(this.appService.getBier());
@@ -35,41 +43,31 @@ export class AppController {
 
   @Get('enqueue/:id')
   async enqueueMessage(@Param('id') id: string): Promise<string> {
-    const sqs = new SQS({
-      region: 'eu-central-1',
-    });
-    const queueUrl =
-      'https://sqs.eu-central-1.amazonaws.com/571832093814/mawi-test';
     const params = {
       MessageBody: id,
-      QueueUrl: queueUrl,
+      QueueUrl: this.queueUrl,
     } as SQS.SendMessageRequest;
-    await sqs.sendMessage(params).promise();
+    await this.sqs.sendMessage(params).promise();
 
     return 'OK';
   }
 
   @Get('dequeue')
   async dequeueMessage(): Promise<string> {
-    const sqs = new SQS({
-      region: 'eu-central-1',
-    });
-    const queueUrl =
-      'https://sqs.eu-central-1.amazonaws.com/571832093814/mawi-test';
     const params = {
-      QueueUrl: queueUrl,
+      QueueUrl: this.queueUrl,
       MaxNumberOfMessages: 1,
     } as SQS.ReceiveMessageRequest;
-    const result = await sqs.receiveMessage(params).promise();
+    const result = await this.sqs.receiveMessage(params).promise();
     if (result.Messages.length === 0) {
       return 'No message available';
     }
     const message = result.Messages[0];
     const deleteParams = {
-      QueueUrl: queueUrl,
+      QueueUrl: this.queueUrl,
       ReceiptHandle: message.ReceiptHandle,
     } as SQS.DeleteMessageRequest;
-    await sqs.deleteMessage(deleteParams).promise();
+    await this.sqs.deleteMessage(deleteParams).promise();
 
     return message.Body;
   }
